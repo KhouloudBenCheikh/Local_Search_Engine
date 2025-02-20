@@ -12,7 +12,7 @@ assistant_convo = [sys_msgs.assistant_msg]
 def search_or_not():
     sys_msg = sys_msgs.search_or_not_msg
     response = ollama.chat(
-        model='llama3.1:8b',
+        model='llama3',
         messages=[{'role': 'system', 'content':sys_msg}, assistant_convo[-1]]
     )
 
@@ -28,7 +28,7 @@ def query_generator():
     query_msg = f'CREATE A SEARCH QUERY FOR THIS PROMPT: \n{assistant_convo[-1]}'
 
     response = ollama.chat(
-        model='llama3.1:8b',
+        model='llama',
         messages=[{'role': 'system', 'content': sys_msg}, {'role':'user', 'content': query_msg}]
     )
     return response['message']['content']
@@ -69,7 +69,7 @@ def best_search_results(s_results, query):
     for _ in range(2):
         try:
             response = ollama.chat(
-                model='llama3.1:8b',
+                model='llama3',
                 messages=[{'role': 'system', 'content': sys_msg}, {'role':'user', 'content': best_msg}]
     )
             return int (response['message']['content'])
@@ -117,13 +117,13 @@ def contains_data_needed(search_content, query):
     needed_prompt = f'PAGE_TEXT: {search_content} \nUSER_PROMPT: {assistant_convo[-1]} \nSEARCH_QUERY: {query}'
 
     response = ollama.chat(
-        model='llama3.1:8b',
+        model='llama3',
         messages=[{'role': 'system', 'content': sys_msg}, {'role':'user', 'content': needed_prompt}]
     )
     content =  response['message']['content']
 
     if 'true' in content.lower():
-        print(f'{Fore.LIGHTRED_EX}DATA FOUND FOR QUERY: {query}{Style.RESET_ALL}')
+        print(f'{Fore.FGREEN_EX}DATA FOUND FOR QUERY: {query}{Style.RESET_ALL}')
         return True
     else:
         print(f'{Fore.LIGHTRED_EX}DATA NOT RELEVANT: {Style.RESET_ALL}')
@@ -131,12 +131,12 @@ def contains_data_needed(search_content, query):
 
 def stream_assistant_reponse():
     global assistant_convo
-    response_stream = ollama.chat(model="llama3.1:8b", messages=assistant_convo, stream=True)
+    response_stream = ollama.chat(model="llama3", messages=assistant_convo, stream=True)
     complete_response =''
-    print('AI assistant: ')
+    print(f'{Fore.LIGHTCYAN_EX}AI assistant: ')
 
     for chunk in response_stream:
-        print(f'{Fore.WHITE}{chunk["message"]["content"]{Style.RESET_ALL}', end='', flush=True)
+        print(f'{Fore.MAGENTA}{chunk["message"]["content"]}{Style.RESET_ALL}', end='', flush=True)
         complete_response += chunk['message']['content']
 
     assistant_convo.append({'role': 'assistant', 'content': complete_response})
@@ -147,7 +147,7 @@ def main():
     global assistant_convo
 
     while True:
-        prompt = input('Human USER: \n')
+        prompt = input(f'{Fore.LIGHTGREEN_EX}Human USER: \n')
         assistant_convo.append({'role':'user', 'content': prompt})
         
         if search_or_not():
